@@ -1,0 +1,348 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Courier New', monospace;
+    background: #000;
+    color: #0f0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* CRT Screen Effect */
+#crt-effect {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.5) 100%);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+#scanlines {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 1001;
+    animation: scanline-move 8s linear infinite;
+}
+
+@keyframes scanline-move {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(10px); }
+}
+
+#terminal-container {
+    width: 90%;
+    max-width: 900px;
+    background: rgba(0, 20, 0, 0.9);
+    border: 2px solid #0f0;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 0, 0.3),
+        inset 0 0 50px rgba(0, 255, 0, 0.05);
+    animation: terminal-flicker 0.15s infinite;
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes terminal-flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.98; }
+}
+
+#terminal-header {
+    border-bottom: 1px solid #0f0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.header-text {
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+}
+
+#terminal-output {
+    min-height: 400px;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+/* Custom scrollbar */
+#terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+#terminal-output::-webkit-scrollbar-track {
+    background: #001a00;
+}
+
+#terminal-output::-webkit-scrollbar-thumb {
+    background: #0f0;
+    border-radius: 4px;
+}
+
+.terminal-line {
+    margin: 5px 0;
+    opacity: 0;
+    animation: line-appear 0.3s forwards;
+    text-shadow: 0 0 2px rgba(0, 255, 0, 0.5);
+}
+
+@keyframes line-appear {
+    to { opacity: 1; }
+}
+
+.success {
+    color: #0f0;
+}
+
+.warning {
+    color: #ff0;
+}
+
+.error {
+    color: #f00;
+    animation: error-blink 0.5s 3;
+}
+
+.info {
+    color: #0ff;
+}
+
+@keyframes error-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.glitch {
+    animation: glitch-effect 0.3s;
+}
+
+@keyframes glitch-effect {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(2px, -2px); }
+    60% { transform: translate(-2px, -2px); }
+    80% { transform: translate(2px, 2px); }
+}
+
+#progress-bars {
+    margin: 20px 0;
+}
+
+.progress-container {
+    margin: 10px 0;
+}
+
+.progress-label {
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #001a00;
+    border: 1px solid #0f0;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: repeating-linear-gradient(
+        90deg,
+        #0f0,
+        #0f0 10px,
+        #0a0 10px,
+        #0a0 20px
+    );
+    width: 0%;
+    transition: width 0.3s linear;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+}
+
+.progress-percentage {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #0f0;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+}
+
+#terminal-input {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.prompt {
+    color: #0f0;
+    margin-right: 10px;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+}
+
+.blink {
+    animation: cursor-blink 1s infinite;
+}
+
+@keyframes cursor-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+#typing-indicator {
+    color: #0f0;
+}
+
+/* Screen shake effect */
+.screen-shake {
+    animation: screen-shake 0.5s;
+}
+
+@keyframes screen-shake {
+    0%, 100% { transform: translate(0, 0); }
+    10%, 30%, 50%, 70%, 90% { transform: translate(-5px, 0); }
+    20%, 40%, 60%, 80% { transform: translate(5px, 0); }
+}
+
+/* Glitch text effect */
+.glitch-text {
+    position: relative;
+    color: #0f0;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+}
+
+.glitch-text::before {
+    animation: glitch-anim-1 0.3s infinite;
+    color: #f00;
+    z-index: -1;
+}
+
+.glitch-text::after {
+    animation: glitch-anim-2 0.3s infinite;
+    color: #00f;
+    z-index: -2;
+}
+
+@keyframes glitch-anim-1 {
+    0%, 100% { transform: translate(0); }
+    33% { transform: translate(-2px, 2px); }
+    66% { transform: translate(2px, -2px); }
+}
+
+@keyframes glitch-anim-2 {
+    0%, 100% { transform: translate(0); }
+    33% { transform: translate(2px, 2px); }
+    66% { transform: translate(-2px, -2px); }
+}
+
+/* Content styles */
+#content {
+    text-align: center;
+    color: #0f0;
+}
+
+.terminal-success {
+    background: rgba(0, 20, 0, 0.9);
+    border: 2px solid #0f0;
+    padding: 40px;
+    border-radius: 5px;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+    animation: success-pulse 2s infinite;
+}
+
+@keyframes success-pulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 0, 0.5); }
+    50% { box-shadow: 0 0 50px rgba(0, 255, 0, 0.8); }
+}
+
+.terminal-success pre {
+    font-size: 16px;
+    color: #0f0;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+    animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+#restart {
+    margin-top: 30px;
+    padding: 15px 30px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    background: #0f0;
+    color: #000;
+    border: 2px solid #0f0;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    transition: all 0.3s;
+}
+
+#restart:hover {
+    background: #000;
+    color: #0f0;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+    transform: scale(1.05);
+}
+
+/* Matrix rain effect (background) */
+.matrix-char {
+    position: fixed;
+    color: #0f0;
+    font-size: 20px;
+    opacity: 0;
+    animation: matrix-fall 3s linear;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes matrix-fall {
+    0% {
+        opacity: 1;
+        transform: translateY(-100%);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(100vh);
+    }
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keep The App Alive!</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container" class="active">
+        <!-- Main game area -->
+        <div id="game-header">
+            <div class="header-left">
+                <div class="stat-box">
+                    <span class="stat-icon">☕</span>
+                    <div class="stat-bar">
+                        <div id="coffee-bar" class="bar-fill"></div>
+                    </div>
+                    <span class="stat-label">Caffeine</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-icon">🌡️</span>
+                    <div class="stat-bar">
+                        <div id="temp-bar" class="bar-fill temp"></div>
+                    </div>
+                    <span class="stat-label">Server Temp</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-icon">💾</span>
+                    <div class="stat-bar">
+                        <div id="memory-bar" class="bar-fill memory"></div>
+                    </div>
+                    <span class="stat-label">Memory</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <div id="loading-progress">
+                    <div class="progress-text">LOADING: <span id="progress-percent">0</span>%</div>
+                    <div class="progress-bar-main">
+                        <div id="progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div id="score">Score: <span id="score-value">0</span></div>
+                <div id="combo">Combo: <span id="combo-value">0</span>x</div>
+            </div>
+        </div>
+
+        <!-- Game play area -->
+        <div id="game-play-area">
+            <!-- Bugs that appear -->
+            <div id="bugs-container"></div>
+            
+            <!-- Memory leaks -->
+            <div id="leaks-container"></div>
+            
+            <!-- Stack Overflow tabs -->
+            <div id="tabs-container"></div>
+            
+            <!-- Main message -->
+            <div id="main-message">Keep everything balanced to load the app!</div>
+            
+            <!-- Instructions -->
+            <div id="instructions">
+                <div class="instruction">🐛 Click bugs to squash them!</div>
+                <div class="instruction">☕ Press <kbd>C</kbd> to drink coffee</div>
+                <div class="instruction">🌡️ Press <kbd>F</kbd> to cool server (when hot)</div>
+                <div class="instruction">💾 Press <kbd>M</kbd> to free memory</div>
+                <div class="instruction">📚 Press <kbd>X</kbd> to close Stack Overflow tabs</div>
+            </div>
+        </div>
+
+        <!-- Chaos Events -->
+        <div id="chaos-event" style="display: none;"></div>
+        
+        <!-- Manager Warning -->
+        <div id="manager-warning" style="display: none;">
+            <div class="manager-content">
+                <h2>⚠️ MANAGER APPROACHING! ⚠️</h2>
+                <p>Press <kbd>SPACE</kbd> rapidly to look busy!</p>
+                <div id="busy-meter">
+                    <div id="busy-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="victory-screen" style="display: none;">
+        <div class="victory-content">
+            <h1>🎉 APP LOADED SUCCESSFULLY! 🎉</h1>
+            <div id="final-score"></div>
+            <div id="achievements"></div>
+            <button id="restart-btn">SURVIVE ANOTHER LOAD</button>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameover-screen" style="display: none;">
+        <div class="gameover-content">
+            <h1>💥 APP CRASHED! 💥</h1>
+            <div id="crash-reason"></div>
+            <div id="gameover-score"></div>
+            <button id="retry-btn">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

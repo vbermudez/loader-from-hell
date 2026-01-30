@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet the Blob While You Wait</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="loader-container" class="active">
+        <div id="blob"></div>
+        <div id="message">Loading... Pet me to help! 🥺</div>
+        <div id="interaction-meter">
+            <div class="meter-label">Blob Happiness:</div>
+            <div class="meter-bar">
+                <div id="happiness-fill"></div>
+            </div>
+        </div>
+        <button id="sound-toggle" class="mute-btn">🔊</button>
+    </div>
+    
+    <div id="content" style="display: none;">
+        <h1>🎉 Blob is Happy! Content Loaded!</h1>
+        <div id="confetti-container"></div>
+        <button id="restart">Play with Blob Again</button>
+    </div>
+
+    <div id="custom-cursor">👆</div>
+
+    <script src="script.js"></script>
+</body>
+</html>

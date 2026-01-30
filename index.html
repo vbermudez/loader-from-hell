@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌀 Loader From Hell - Test Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
+            min-height: 100vh;
+        }
+
+        .control-bar {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 3px solid #7e22ce;
+        }
+
+        .control-content {
+            max-width: 1210px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .title {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: auto;
+        }
+
+        .title span {
+            color: #7e22ce;
+        }
+
+        .loader-select {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: 2px solid #7e22ce;
+            border-radius: 8px;
+            background: rgba(126, 34, 206, 0.2);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 300px;
+        }
+
+        .loader-select:hover {
+            background: rgba(126, 34, 206, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .loader-select option {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .load-btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .load-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .load-btn:active {
+            transform: translateY(0);
+        }
+
+        .info-badge {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .loader-frame-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .loader-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .loader-info h2 {
+            margin-bottom: 10px;
+            /* color: #7e22ce; */
+        }
+
+        .loader-info ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .loader-frame {
+            width: 100%;
+            height: calc(100vh - 200px);
+            border: 3px solid #7e22ce;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .loader-frame.active {
+            display: block;
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 100px 20px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .placeholder-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .placeholder {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @media (max-width: 768px) {
+            .control-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .title {
+                margin-right: 0;
+                text-align: center;
+            }
+
+            .loader-select {
+                width: 100%;
+            }
+        }
+
+        .chaos-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #f59e0b;
+            color: #000;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="control-bar">
+        <div class="control-content">
+            <div class="title">
+                🌀 <span>Loader From Hell</span> - Test Suite
+                <span class="chaos-badge">CHAOS MODE</span>
+            </div>
+            <select id="loader-select" class="loader-select">
+                <option value="">Select a Chaotic Loader...</option>
+                <option value="madness">🔥 Descent into Madness</option>
+                <option value="blob">🫧 Pet the Blob While You Wait</option>
+                <option value="terminal">💻 Retro Terminal Hacking Simulator</option>
+                <option value="chaos-game">🎮 Keep The App Alive! (Mini-Game)</option>
+            </select>
+            <button id="load-btn" class="load-btn">▶️ LOAD CHAOS</button>
+            <div class="info-badge" id="status-badge">Ready</div>
+        </div>
+    </div>
+
+    <div class="loader-frame-container">
+        <div id="loader-info" class="loader-info" style="display: none;">
+            <h2 id="info-title"></h2>
+            <p id="info-description"></p>
+            <ul id="info-features"></ul>
+        </div>
+
+        <div id="placeholder" class="placeholder">
+            <div class="placeholder-icon">🎯</div>
+            <div>Select a loader and click "LOAD CHAOS" to begin</div>
+            <div style="font-size: 16px; margin-top: 20px; opacity: 0.8;">
+                Choose your fighter from the dropdown above ⬆️
+            </div>
+        </div>
+
+        <iframe id="loader-frame" class="loader-frame"></iframe>
+    </div>
+
+    <script>
+        const loaderSelect = document.getElementById('loader-select');
+        const loadBtn = document.getElementById('load-btn');
+        const loaderFrame = document.getElementById('loader-frame');
+        const placeholder = document.getElementById('placeholder');
+        const statusBadge = document.getElementById('status-badge');
+        const loaderInfo = document.getElementById('loader-info');
+
+        const loaderDetails = {
+            madness: {
+                title: "🔥 Descent into Madness",
+                description: "Watch as a professional loader progressively loses its sanity the longer it runs.",
+                features: [
+                    "⏱️ 4 Progressive stages of increasing chaos",
+                    "💡 Increasingly unhelpful loading tips",
+                    "📟 Fake console error messages",
+                    "🚨 Emergency exit button (Blue Screen easter egg)",
+                    "🎭 Dramatic escalation with screen shaking"
+                ],
+                path: "madness-loader/index.html"
+            },
+            blob: {
+                title: "🫧 Pet the Blob While You Wait",
+                description: "An interactive, needy blob creature that demands your attention and affection.",
+                features: [
+                    "🎮 Fully interactive - pet with mouse/touch",
+                    "😊 AI-ish behavior - remembers your interactions",
+                    "👀 Eyes follow your cursor",
+                    "🔊 Adorable sound effects (toggle available)",
+                    "🎉 Confetti celebration on completion"
+                ],
+                path: "blob-loader/index.html"
+            },
+            terminal: {
+                title: "💻 Retro Terminal Hacking Simulator",
+                description: "A fake terminal that 'hacks' its way to loading your content with Matrix vibes.",
+                features: [
+                    "🖥️ Authentic CRT screen effects with scanlines",
+                    "⌨️ Keyboard mashing makes it 'hack faster'",
+                    "📊 Multiple fake progress bars",
+                    "⚡ Random glitch effects and screen shakes",
+                    "🎬 Matrix-style falling characters"
+                ],
+                path: "terminal-loader/index.html"
+            },
+            "chaos-game": {
+                title: "🎮 Keep The App Alive! (Mini-Game)",
+                description: "A full chaos management game! Balance coffee, server temperature, and memory while squashing bugs, fixing leaks, and surviving manager visits.",
+                features: [
+                    "🎯 Real-time resource management mini-game",
+                    "🐛 Click bugs before they crash the server",
+                    "☕ Manage caffeine levels (Press C)",
+                    "🌡️ Cool down overheating servers (Press F)",
+                    "💾 Fix memory leaks (Press M)",
+                    "📚 Close Stack Overflow tabs (Press X)",
+                    "👔 Survive manager surprise visits (mash SPACE)",
+                    "🌩️ Random chaos events that shake everything up",
+                    "🏆 Achievements and combo system",
+                    "💯 Score tracking with multipliers"
+                ],
+                path: "chaos-game-loader/index.html"
+            }
+        };
+
+        function updateInfo(loaderType) {
+            if (!loaderType) {
+                loaderInfo.style.display = 'none';
+                return;
+            }
+
+            const details = loaderDetails[loaderType];
+            loaderInfo.style.display = 'block';
+            
+            document.getElementById('info-title').textContent = details.title;
+            document.getElementById('info-description').textContent = details.description;
+            
+            const featuresList = document.getElementById('info-features');
+            featuresList.innerHTML = '';
+            details.features.forEach(feature => {
+                const li = document.createElement('li');
+                li.textContent = feature;
+                featuresList.appendChild(li);
+            });
+        }
+
+        function loadLoader() {
+            const selectedLoader = loaderSelect.value;
+            
+            if (!selectedLoader) {
+                alert('Please select a loader first! 🎯');
+                return;
+            }
+
+            const details = loaderDetails[selectedLoader];
+            
+            // Update status
+            statusBadge.textContent = 'Loading...';
+            statusBadge.style.background = 'rgba(251, 191, 36, 0.3)';
+            
+            // Hide placeholder and show iframe
+            placeholder.style.display = 'none';
+            loaderFrame.classList.add('active');
+            
+            // Load the selected loader
+            loaderFrame.src = details.path;
+            
+            // Update status after load
+            loaderFrame.onload = () => {
+                statusBadge.textContent = '🔥 Chaos Active';
+                statusBadge.style.background = 'rgba(239, 68, 68, 0.3)';
+            };
+        }
+
+        // Event listeners
+        loadBtn.addEventListener('click', loadLoader);
+        
+        loaderSelect.addEventListener('change', (e) => {
+            updateInfo(e.target.value);
+        });
+
+        // Allow Enter key to load
+        loaderSelect.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                loadLoader();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+#loader-container {
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+#loader-container.shake {
+    animation: shake 0.5s infinite;
+}
+
+#loader-container.intense-shake {
+    animation: intense-shake 0.3s infinite;
+}
+
+#spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 30px;
+    border-radius: 50%;
+    border: 8px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    animation: spin 1s linear infinite;
+}
+
+#spinner.multi-spin {
+    animation: spin 0.5s linear infinite, pulse 1s ease-in-out infinite;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
+}
+
+#spinner.chaos {
+    animation: spin 0.2s linear infinite, pulse 0.5s ease-in-out infinite, wobble 0.3s ease-in-out infinite;
+    box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+    border-top-color: #ff0000;
+    border-right-color: #ff6600;
+    border-bottom-color: #ffff00;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(180deg); }
+}
+
+@keyframes wobble {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    25% { transform: translateX(-10px) rotate(-5deg); }
+    75% { transform: translateX(10px) rotate(5deg); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes intense-shake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-10px, 5px) rotate(-2deg); }
+    50% { transform: translate(10px, -5px) rotate(2deg); }
+    75% { transform: translate(-5px, 10px) rotate(-1deg); }
+}
+
+#message {
+    font-size: 24px;
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+#message.warning {
+    color: #ffeb3b;
+    font-size: 28px;
+    animation: blink 1s infinite;
+}
+
+#message.panic {
+    color: #ff1744;
+    font-size: 32px;
+    font-weight: bold;
+    animation: blink 0.3s infinite, shake 0.2s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+#tips {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+    font-style: italic;
+    margin-top: 20px;
+    min-height: 20px;
+}
+
+#console-messages {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #00ff00;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+}
+
+#console-messages.active {
+    display: block;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.console-line {
+    margin: 2px 0;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+#emergency-exit {
+    margin-top: 30px;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    background: #ff1744;
+    color: white;
+    border: 3px solid #fff;
+    border-radius: 10px;
+    cursor: pointer;
+    animation: pulse-button 1s infinite, shake 0.5s infinite;
+    box-shadow: 0 0 20px rgba(255, 23, 68, 0.8);
+}
+
+#emergency-exit:hover {
+    background: #d50000;
+    transform: scale(1.1);
+}
+
+@keyframes pulse-button {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 23, 68, 0.8); }
+    50% { box-shadow: 0 0 40px rgba(255, 23, 68, 1); }
+}
+
+#content {
+    text-align: center;
+    color: white;
+}
+
+#content h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+    animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+#restart {
+    margin-top: 20px;
+    padding: 12px 24px;
+    font-size: 16px;
+    background: white;
+    color: #667eea;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#restart:hover {
+    background: #f0f0f0;
+    transform: scale(1.05);
+}
+
+/* BSOD Effect */
+.bsod {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #0000aa;
+    color: white;
+    font-family: 'Courier New', monospace;
+    display: none;
+    z-index: 9999;
+    padding: 40px;
+}
+
+.bsod.active {
+    display: block;
+    animation: glitch 0.3s;
+}
+
+@keyframes glitch {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-5px, 5px); }
+    40% { transform: translate(5px, -5px); }
+    60% { transform: translate(-5px, -5px); }
+    80% { transform: translate(5px, 5px); }
+}
+
+.bsod h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.bsod p {
+    font-size: 18px;
+    line-height: 1.6;
+}
