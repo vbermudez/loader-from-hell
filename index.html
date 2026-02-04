@@ -307,7 +307,7 @@
 
         const loaderDetails = {
             madness: {
-                title: "🔥 Descent into Madness",
+                title: "🔥 Descent into <span style='color: #fbbf24;'>M</span>adness",
                 description: "Watch as a professional loader progressively loses its sanity the longer it runs.",
                 features: [
                     "⏱️ 4 Progressive stages of increasing chaos",
@@ -319,7 +319,7 @@
                 path: "madness-loader/index.html"
             },
             blob: {
-                title: "🫧 Pet the Blob While You Wait",
+                title: "🫧 Pet the <span style='color: #fbbf24;'>B</span>lob While You Wait",
                 description: "An interactive, needy blob creature that demands your attention and affection.",
                 features: [
                     "🎮 Fully interactive - pet with mouse/touch",
@@ -331,7 +331,7 @@
                 path: "blob-loader/index.html"
             },
             terminal: {
-                title: "💻 Retro Terminal Hacking Simulator",
+                title: "💻 Retro <span style='color: #fbbf24;'>T</span>erminal Hacking Simulator",
                 description: "A fake terminal that 'hacks' its way to loading your content with Matrix vibes.",
                 features: [
                     "🖥️ Authentic CRT screen effects with scanlines",
@@ -344,7 +344,7 @@
             },
             "chaos-game": {
                 title: "🎮 Keep The App Alive! (Mini-Game)",
-                description: "A full chaos management game! Balance coffee, server temperature, and memory while squashing bugs, fixing leaks, and surviving manager visits.",
+                description: "A full <span style='color: #f59e0b; font-weight: bold; font-size: 1.1em;'>C</span>haos management game! Balance coffee, server temperature, and memory while squashing bugs, fixing leaks, and surviving manager visits.",
                 features: [
                     "🎯 Real-time resource management mini-game",
                     "🐛 Click bugs before they crash the server",
@@ -370,8 +370,8 @@
             const details = loaderDetails[loaderType];
             loaderInfo.style.display = 'block';
             
-            document.getElementById('info-title').textContent = details.title;
-            document.getElementById('info-description').textContent = details.description;
+            document.getElementById('info-title').innerHTML = details.title;
+            document.getElementById('info-description').innerHTML = details.description;
             
             const featuresList = document.getElementById('info-features');
             featuresList.innerHTML = '';
