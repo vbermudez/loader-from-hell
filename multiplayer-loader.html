@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎪 CHAOS CARNIVAL - Multiplayer Loader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #fff;
+        }
+
+        #container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #gameCanvas {
+            border: 4px solid #ff00ff;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.4), 0 0 40px rgba(0, 255, 255, 0.2);
+            background: #1a1a1a;
+            image-rendering: pixelated;
+            animation: borderGlitch 3s ease-in-out infinite;
+        }
+
+        @keyframes borderGlitch {
+            0%, 100% { border-color: #ff00ff; box-shadow: 0 0 20px rgba(255, 0, 255, 0.4), 0 0 40px rgba(0, 255, 255, 0.2); }
+            50% { border-color: #00ffff; box-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 0 40px rgba(255, 0, 255, 0.2); }
+        }
+
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+            animation: titleGlitch 1s infinite;
+            letter-spacing: 3px;
+        }
+
+        @keyframes titleGlitch {
+            0%, 100% { color: #ff00ff; }
+            50% { color: #00ffff; }
+        }
+
+        #objective {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 0, 255, 0.3);
+            padding: 15px 30px;
+            border: 3px solid #ff00ff;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 400px;
+            box-shadow: 0 0 20px #ff00ff;
+            animation: objectivePulse 0.5s infinite alternate;
+        }
+
+        @keyframes objectivePulse {
+            from { transform: translateX(-50%) scale(1); }
+            to { transform: translateX(-50%) scale(1.05); }
+        }
+
+        #scoreboard {
+            position: absolute;
+            top: 150px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ffff;
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+            box-shadow: 0 0 20px #00ffff;
+        }
+
+        .score-title {
+            font-size: 16px;
+            color: #00ffff;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .player-score {
+            padding: 5px;
+            margin: 3px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .player-score.leader {
+            background: rgba(255, 255, 0, 0.3);
+            border-left: 3px solid #ffff00;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff00ff, #00ffff, #ffff00);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        #status {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00;
+            text-align: center;
+        }
+
+        #playerInfo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ffff00;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #ffff00;
+        }
+
+        .info-line {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ff00ff;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        #debug {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            max-width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+
+        .glitch {
+            animation: glitchEffect 0.3s infinite;
+        }
+
+        @keyframes glitchEffect {
+            0%, 100% { transform: translate(0); }
+            25% { transform: translate(-2px, 2px); }
+            50% { transform: translate(2px, -2px); }
+            75% { transform: translate(-2px, -2px); }
+        }
+
+        #results {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 5px solid #ffff00;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 0 50px #ffff00;
+            animation: resultsAppear 0.5s;
+        }
+
+        @keyframes resultsAppear {
+            from { transform: translate(-50%, -50%) scale(0); }
+            to { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .winner-title {
+            font-size: 36px;
+            color: #ffff00;
+            margin-bottom: 20px;
+            animation: titleGlitch 0.5s infinite;
+        }
+
+        .podium {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .podium-place {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 150px;
+        }
+
+        .podium-place.first {
+            border: 3px solid gold;
+            background: rgba(255, 215, 0, 0.2);
+        }
+
+        .podium-place.second {
+            border: 3px solid silver;
+            background: rgba(192, 192, 192, 0.2);
+        }
+
+        .podium-place.third {
+            border: 3px solid #cd7f32;
+            background: rgba(205, 127, 50, 0.2);
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-family: 'Courier New', monospace;
+            background: #ff00ff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            pointer-events: all;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #00ffff;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #00ffff;
+        }
+
+        #loadingScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        #loadingScreen.winner {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a4a0a 100%);
+        }
+
+        #loadingScreen.loser {
+            background: linear-gradient(135deg, #1a1a1a 0%, #4a0a0a 100%);
+        }
+
+        .loading-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            animation: titleGlitch 1s infinite;
+        }
+
+        .loading-message {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        .loading-subtitle {
+            font-size: 18px;
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .error-code {
+            font-size: 120px;
+            font-weight: bold;
+            color: #ff0000;
+            text-shadow: 0 0 30px #ff0000;
+            margin-bottom: 20px;
+            animation: glitchEffect 0.5s infinite;
+        }
+
+        .success-icon {
+            font-size: 120px;
+            margin-bottom: 20px;
+            animation: successPulse 1s infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div id="ui">
+            <div id="title">🎪 CHAOS CARNIVAL 🎪</div>
+            
+            <div id="objective">
+                CONNECTING TO CARNIVAL...
+            </div>
+            
+            <div id="scoreboard">
+                <div class="score-title">🏆 RACE TO 15 POINTS! 🏆</div>
+                <div id="scoreList"></div>
+            </div>
+            
+            <div id="playerInfo">
+                <div class="info-line">👤 <strong>You:</strong> <span id="playerName">???</span></div>
+                <div class="info-line">🎪 <strong>Players:</strong> <span id="playerCount">0</span></div>
+                <div class="info-line">⚡ <strong>Chaos:</strong> <span id="chaosLevel">LOADING...</span></div>
+            </div>
+            
+            <div id="status">
+                Press SPACE to honk! 📯
+            </div>
+            
+            <div id="controls">
+                <strong>CONTROLS:</strong><br>
+                WASD/Arrows: Move<br>
+                SPACE: Honk<br>
+                ESC: Exit
+            </div>
+
+            <div id="debug">
+                <strong style="color: #00ff00">🔍 DEBUG LOG</strong><br>
+                <div id="debugLog"></div>
+            </div>
+
+            <div id="results">
+                <div class="winner-title">🎉 GAME OVER 🎉</div>
+                <div class="podium" id="podium"></div>
+                <button onclick="location.reload()">PLAY AGAIN</button>
+            </div>
+        </div>
+
+        <!-- Loading Screen (Winner/Loser) -->
+        <div id="loadingScreen">
+            <div id="loadingContent"></div>
+        </div>
+    </div>
+
+    <!-- Supabase client library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ====== SUPABASE CONFIGURATION ======
+        // Replace these with your Supabase project credentials
+        // Get them from: https://app.supabase.com/project/_/settings/api
+        const SUPABASE_URL = 'https://tedjjujxmnvfjbilirlz.supabase.co'; // e.g., 'https://xxxxx.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZGpqdWp4bW52ZmpiaWxpcmx6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxODM0MDMsImV4cCI6MjA4NTc1OTQwM30.Y-ZsZHd0xEPe8VP1X5pYucOwI8Qk7Dzl0BrG5uxDoiQ';
+        
+        // Initialize Supabase client
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Create a unique room/channel for the game
+        const ROOM_NAME = 'chaos-carnival-arena';
+        const channel = supabaseClient.channel(ROOM_NAME);
+
+        // ====== GAME CONSTANTS ======
+        const CANVAS_WIDTH = 800;
+        const CANVAS_HEIGHT = 600;
+        const PLAYER_SIZE = 40;
+        const MOVE_SPEED = 3;
+        const FRICTION = 0.9;
+        const BOUNCE = 0.7;
+        const OBJECTIVE_DURATION = 15000; // 15 seconds per objective
+        const GAME_DURATION = 90000; // 90 seconds total (6 objectives max)
+        const MAX_SCORE = 15; // Score needed to win and "load content" (5 wins or mix of placements)
+
+        // ====== FUNNY NAMES ======
+        const ADJECTIVES = [
+            'Wobbly', 'Anxious', 'Screaming', 'Depressed', 'Philosophical',
+            'Bankrupt', 'Haunted', 'Melting', 'Panicking', 'Confused',
+            'Stressed', 'Caffeinated', 'Sleepy', 'Grumpy', 'Hyperactive',
+            'Wet', 'Dry', 'Frozen', 'Spicy', 'Soggy', 'Crispy', 'Moldy',
+            'Glitchy', 'Laggy', 'Buffering', 'Disconnected', 'Rebooting'
+        ];
+
+        const NOUNS = [
+            'Turnip', 'Bagel', 'Potato', 'Waffle', 'Toast', 'Cheese',
+            'Goblin', 'Sock', 'Wizard', 'Shrimp', 'Doorknob', 'Cube',
+            'Pickle', 'Muffin', 'Pancake', 'Burrito', 'Noodle', 'Cookie',
+            'Cucumber', 'Pumpkin', 'Pretzel', 'Donut', 'Taco', 'Pixel'
+        ];
+
+        // ====== OBJECTIVES ======
+        const OBJECTIVES = [
+            {
+                type: 'collect',
+                name: '⭐ COLLECT THE GLOWING ORBS! ⭐',
+                scoreType: 'items'
+            },
+            {
+                type: 'height',
+                name: '🎈 BE THE HIGHEST BALLOON! 🎈',
+                scoreType: 'position'
+            },
+            {
+                type: 'center',
+                name: '🎯 GET TO THE CENTER! 🎯',
+                scoreType: 'distance'
+            },
+            {
+                type: 'corners',
+                name: '📐 VISIT ALL CORNERS! 📐',
+                scoreType: 'corners'
+            },
+            {
+                type: 'speed',
+                name: '💨 FASTEST BALLOON WINS! 💨',
+                scoreType: 'velocity'
+            },
+            {
+                type: 'stillness',
+                name: '🧘 HOLD PERFECTLY STILL! 🧘',
+                scoreType: 'stillness'
+            },
+            {
+                type: 'bumps',
+                name: '💥 BUMP INTO OTHERS! 💥',
+                scoreType: 'bumps'
+            },
+            {
+                type: 'avoid',
+                name: '🚫 AVOID OTHER BALLOONS! 🚫',
+                scoreType: 'isolation'
+            }
+        ];
+
+        // ====== CANVAS SETUP ======
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // ====== AUDIO CONTEXT ======
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(frequency, duration, type = 'sine') {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = type;
+            
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        function honkSound() {
+            playSound(200, 0.1, 'square');
+            setTimeout(() => playSound(150, 0.1, 'square'), 50);
+        }
+
+        function collectSound() {
+            playSound(600, 0.1, 'sine');
+            setTimeout(() => playSound(800, 0.1, 'sine'), 50);
+        }
+
+        function objectiveSound() {
+            playSound(400, 0.1, 'triangle');
+            setTimeout(() => playSound(600, 0.1, 'triangle'), 100);
+            setTimeout(() => playSound(800, 0.1, 'triangle'), 200);
+        }
+
+        function scoreSound() {
+            playSound(800, 0.15, 'sine');
+        }
+
+        function winSound() {
+            playSound(523, 0.2, 'sine');
+            setTimeout(() => playSound(659, 0.2, 'sine'), 200);
+            setTimeout(() => playSound(784, 0.3, 'sine'), 400);
+        }
+
+        // ====== GAME STATE ======
+        let myPlayerId = null;
+        let myPlayerName = generateName();
+        let isHost = false;
+        let gameLoopRunning = false;
+        let gameStartTime = null;
+        let currentObjective = null;
+        let objectiveStartTime = null;
+        let objectiveIndex = 0;
+
+        const gameState = {
+            players: {},
+            items: [],
+            gameActive: false,
+            gameEndTime: null
+        };
+
+        const keys = {};
+        const playerStats = {};
+
+        // ====== DEBUG LOGGING ======
+        const debugLog = [];
+        function addDebugLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.push(`[${timestamp}] ${message}`);
+            if (debugLog.length > 10) debugLog.shift();
+            const logEl = document.getElementById('debugLog');
+            if (logEl) {
+                logEl.innerHTML = debugLog.join('<br>');
+            }
+            console.log(message);
+        }
+
+        // ====== UTILITY FUNCTIONS ======
+        function generateName() {
+            const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+            const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+            return `${adj} ${noun}`;
+        }
+
+        function randomColor() {
+            const colors = ['#ff00ff', '#00ffff', '#ffff00', '#ff0099', '#00ff99', '#ff9900', '#9900ff', '#00ff00'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function getPlayerColor(index) {
+            const colors = ['#ff00ff', '#00ffff', '#ffff00', '#ff0099', '#00ff99', '#ff9900', '#9900ff', '#00ff00'];
+            return colors[index % colors.length];
+        }
+
+        // ====== SUPABASE REALTIME SETUP ======
+        
+        // Generate unique player ID
+        myPlayerId = 'player_' + Math.random().toString(36).substr(2, 9);
+
+        // Initialize my player
+        gameState.players[myPlayerId] = {
+            id: myPlayerId,
+            name: myPlayerName,
+            x: Math.random() * (CANVAS_WIDTH - 100) + 50,
+            y: Math.random() * (CANVAS_HEIGHT - 100) + 50,
+            vx: 0,
+            vy: 0,
+            size: PLAYER_SIZE,
+            color: '#ff00ff',
+            score: 0,
+            effects: []
+        };
+
+        playerStats[myPlayerId] = {
+            bumps: 0,
+            cornersVisited: new Set(),
+            itemsCollected: 0
+        };
+
+        // Update UI
+        document.getElementById('playerName').textContent = myPlayerName;
+        document.getElementById('playerName').style.color = gameState.players[myPlayerId].color;
+        
+        addDebugLog(`🎮 I am ${myPlayerName} (${myPlayerId.substr(0, 8)})`);
+        addDebugLog('🌐 Connecting to Supabase...');
+
+        // Subscribe to channel and set up presence
+        channel
+            .on('presence', { event: 'sync' }, () => {
+                const state = channel.presenceState();
+                addDebugLog(`👥 Presence sync: ${Object.keys(state).length} players`);
+                
+                // Update player list from presence
+                Object.keys(state).forEach(userId => {
+                    const presences = state[userId];
+                    if (presences && presences.length > 0) {
+                        const playerData = presences[0];
+                        if (playerData.id && playerData.id !== myPlayerId && !gameState.players[playerData.id]) {
+                            gameState.players[playerData.id] = {
+                                id: playerData.id,
+                                name: playerData.name,
+                                x: playerData.x || Math.random() * (CANVAS_WIDTH - 100) + 50,
+                                y: playerData.y || Math.random() * (CANVAS_HEIGHT - 100) + 50,
+                                vx: playerData.vx || 0,
+                                vy: playerData.vy || 0,
+                                size: playerData.size || PLAYER_SIZE,
+                                score: playerData.score || 0,
+                                color: getPlayerColor(Object.keys(gameState.players).length),
+                                effects: playerData.effects || []
+                            };
+                            playerStats[playerData.id] = {
+                                bumps: 0,
+                                cornersVisited: new Set(),
+                                itemsCollected: 0
+                            };
+                            addDebugLog(`✅ Added ${playerData.name} via presence!`);
+                            playSound(600, 0.1, 'sine');
+                            updatePlayerCount();
+                        }
+                    }
+                });
+            })
+            .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+                addDebugLog(`🎉 Player joined: ${key.substr(0, 8)}`);
+                newPresences.forEach(presence => {
+                    if (presence.id && presence.id !== myPlayerId && !gameState.players[presence.id]) {
+                        gameState.players[presence.id] = {
+                            id: presence.id,
+                            name: presence.name,
+                            x: presence.x || Math.random() * (CANVAS_WIDTH - 100) + 50,
+                            y: presence.y || Math.random() * (CANVAS_HEIGHT - 100) + 50,
+                            vx: presence.vx || 0,
+                            vy: presence.vy || 0,
+                            size: presence.size || PLAYER_SIZE,
+                            score: presence.score || 0,
+                            color: getPlayerColor(Object.keys(gameState.players).length),
+                            effects: presence.effects || []
+                        };
+                        playerStats[presence.id] = {
+                            bumps: 0,
+                            cornersVisited: new Set(),
+                            itemsCollected: 0
+                        };
+                        addDebugLog(`✅ Added ${presence.name} to game!`);
+                        playSound(700, 0.15, 'sine');
+                        updatePlayerCount();
+                    }
+                });
+            })
+            .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+                addDebugLog(`👋 Player left: ${key.substr(0, 8)}`);
+                leftPresences.forEach(presence => {
+                    if (presence.id && gameState.players[presence.id]) {
+                        delete gameState.players[presence.id];
+                        delete playerStats[presence.id];
+                        updatePlayerCount();
+                    }
+                });
+            })
+            .on('broadcast', { event: 'player-update' }, ({ payload }) => {
+                if (payload.id && payload.id !== myPlayerId && gameState.players[payload.id]) {
+                    gameState.players[payload.id].x = payload.x;
+                    gameState.players[payload.id].y = payload.y;
+                    gameState.players[payload.id].vx = payload.vx;
+                    gameState.players[payload.id].vy = payload.vy;
+                    gameState.players[payload.id].size = payload.size;
+                    if (payload.score !== undefined) {
+                        gameState.players[payload.id].score = payload.score;
+                    }
+                    if (payload.effects) {
+                        gameState.players[payload.id].effects = payload.effects;
+                    }
+                }
+            })
+            .on('broadcast', { event: 'scores-update' }, ({ payload }) => {
+                // Update scores from host
+                if (payload.scores) {
+                    Object.entries(payload.scores).forEach(([playerId, score]) => {
+                        if (gameState.players[playerId]) {
+                            const oldScore = gameState.players[playerId].score;
+                            gameState.players[playerId].score = score;
+                            // Play sound if my score increased
+                            if (playerId === myPlayerId && score > oldScore) {
+                                scoreSound();
+                            }
+                        }
+                    });
+                }
+            })
+            .on('broadcast', { event: 'objective' }, ({ payload }) => {
+                currentObjective = payload.objective;
+                objectiveStartTime = payload.startTime;
+                objectiveIndex = payload.index;
+                addDebugLog(`📢 New objective: ${currentObjective.name}`);
+                document.getElementById('objective').textContent = currentObjective.name;
+                objectiveSound();
+                
+                if (payload.objective.type === 'collect') {
+                    gameState.items = payload.items || [];
+                } else {
+                    gameState.items = [];
+                }
+            })
+            .on('broadcast', { event: 'item-collect' }, ({ payload }) => {
+                if (playerStats[payload.playerId]) {
+                    playerStats[payload.playerId].itemsCollected++;
+                }
+                gameState.items = gameState.items.filter((item, idx) => idx !== payload.itemIndex);
+            })
+            .on('broadcast', { event: 'game-start' }, ({ payload }) => {
+                gameStartTime = payload.startTime;
+                gameState.gameActive = true;
+                gameState.gameEndTime = payload.startTime + GAME_DURATION;
+                addDebugLog('🎮 Game starting!');
+            })
+            .on('broadcast', { event: 'request-game-state' }, ({ payload }) => {
+                // Host responds with current game state when new player joins
+                if (isHost && payload.requesterId !== myPlayerId) {
+                    addDebugLog(`📤 Sending game state to ${payload.requesterId.substr(0, 8)}`);
+                    channel.send({
+                        type: 'broadcast',
+                        event: 'game-state-sync',
+                        payload: {
+                            gameActive: gameState.gameActive,
+                            gameStartTime: gameStartTime,
+                            gameEndTime: gameState.gameEndTime,
+                            currentObjective: currentObjective,
+                            objectiveStartTime: objectiveStartTime,
+                            objectiveIndex: objectiveIndex,
+                            items: gameState.items
+                        }
+                    });
+                }
+            })
+            .on('broadcast', { event: 'game-state-sync' }, ({ payload }) => {
+                // New player receives game state
+                addDebugLog('📥 Received game state from host');
+                gameState.gameActive = payload.gameActive;
+                gameStartTime = payload.gameStartTime;
+                gameState.gameEndTime = payload.gameEndTime;
+                currentObjective = payload.currentObjective;
+                objectiveStartTime = payload.objectiveStartTime;
+                objectiveIndex = payload.objectiveIndex;
+                gameState.items = payload.items || [];
+                
+                if (currentObjective) {
+                    document.getElementById('objective').textContent = currentObjective.name;
+                }
+                
+                // Start game loop if not already running
+                if (!gameLoopRunning) {
+                    gameLoopRunning = true;
+                    requestAnimationFrame(gameLoop);
+                }
+            })
+            .on('broadcast', { event: 'game-end' }, ({ payload }) => {
+                addDebugLog(`🏁 Game ended! Winner: ${payload.winnerName}`);
+                gameState.gameActive = false;
+                
+                if (payload.winnerId && gameState.players[payload.winnerId]) {
+                    gameState.players[payload.winnerId].score = payload.winnerScore;
+                }
+                
+                setTimeout(() => {
+                    const isWinner = payload.winnerId === myPlayerId;
+                    showLoadingScreen(isWinner);
+                }, 1000);
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    addDebugLog('✅ Connected to Supabase!');
+                    
+                    // Track my presence
+                    await channel.track({
+                        id: myPlayerId,
+                        name: myPlayerName,
+                        online_at: new Date().toISOString()
+                    });
+                    
+                    // Check presence state to determine if I'm first
+                    const presenceState = channel.presenceState();
+                    const presenceCount = Object.keys(presenceState).length;
+                    
+                    addDebugLog(`👥 Current presence count: ${presenceCount}`);
+                    
+                    // If I'm the only one (or first), become host and start game
+                    if (presenceCount <= 1) {
+                        isHost = true;
+                        addDebugLog('👑 I am the host! Starting game...');
+                        startGame();
+                    } else {
+                        // Join ongoing game - request current state
+                        addDebugLog('🎮 Joining ongoing game...');
+                        channel.send({
+                            type: 'broadcast',
+                            event: 'request-game-state',
+                            payload: { requesterId: myPlayerId }
+                        });
+                    }
+                    
+                    updatePlayerCount();
+                } else if (status === 'CHANNEL_ERROR') {
+                    addDebugLog('❌ Connection error!');
+                } else if (status === 'TIMED_OUT') {
+                    addDebugLog('⏱️ Connection timeout!');
+                }
+            });
+
+        // ====== GAME LOGIC ======
+        function startGame() {
+            if (!isHost) return;
+            
+            gameStartTime = Date.now();
+            gameState.gameActive = true;
+            gameState.gameEndTime = gameStartTime + GAME_DURATION;
+            
+            addDebugLog('🚀 Starting game!');
+            
+            // Broadcast game start
+            channel.send({
+                type: 'broadcast',
+                event: 'game-start',
+                payload: { startTime: gameStartTime }
+            });
+            
+            // Start first objective
+            setNewObjective();
+            
+            // Start game loop
+            if (!gameLoopRunning) {
+                gameLoopRunning = true;
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function setNewObjective() {
+            if (!isHost) return;
+            
+            currentObjective = OBJECTIVES[objectiveIndex % OBJECTIVES.length];
+            objectiveStartTime = Date.now();
+            objectiveIndex++;
+            
+            // Spawn items if collect objective
+            if (currentObjective.type === 'collect') {
+                spawnItems();
+            } else {
+                gameState.items = [];
+            }
+            
+            // Broadcast objective via Supabase
+            channel.send({
+                type: 'broadcast',
+                event: 'objective',
+                payload: {
+                    objective: currentObjective,
+                    startTime: objectiveStartTime,
+                    index: objectiveIndex,
+                    items: gameState.items
+                }
+            });
+            
+            document.getElementById('objective').textContent = currentObjective.name;
+            objectiveSound();
+        }
+
+        function spawnItems() {
+            gameState.items = [];
+            const itemCount = 5 + Object.keys(gameState.players).length;
+            for (let i = 0; i < itemCount; i++) {
+                gameState.items.push({
+                    x: Math.random() * (CANVAS_WIDTH - 60) + 30,
+                    y: Math.random() * (CANVAS_HEIGHT - 60) + 30,
+                    size: 15
+                });
+            }
+        }
+
+        function updatePlayerCount() {
+            const count = Object.keys(gameState.players).length;
+            document.getElementById('playerCount').textContent = count;
+            
+            let chaos = 'CALM';
+            if (count >= 2) chaos = 'MILD';
+            if (count >= 4) chaos = 'SPICY';
+            if (count >= 6) chaos = 'EXTREME';
+            if (count >= 8) chaos = 'CATASTROPHIC';
+            
+            document.getElementById('chaosLevel').textContent = chaos;
+        }
+
+        // ====== INPUT HANDLING ======
+        window.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            
+            if (e.key === ' ') {
+                e.preventDefault();
+                honk();
+            }
+            
+            if (e.key === 'Escape') {
+                document.getElementById('results').style.display = 'block';
+                endGame();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+
+        function honk() {
+            honkSound();
+            // Create shockwave effect
+            gameState.players[myPlayerId].effects.push({
+                type: 'honk',
+                radius: 0,
+                maxRadius: 100
+            });
+        }
+
+        // ====== PHYSICS & MOVEMENT ======
+        function updatePlayer(player) {
+            if (player.id === myPlayerId) {
+                // Handle input
+                if (keys['w'] || keys['arrowup']) player.vy -= MOVE_SPEED;
+                if (keys['s'] || keys['arrowdown']) player.vy += MOVE_SPEED;
+                if (keys['a'] || keys['arrowleft']) player.vx -= MOVE_SPEED;
+                if (keys['d'] || keys['arrowright']) player.vx += MOVE_SPEED;
+            }
+
+            // Apply friction
+            player.vx *= FRICTION;
+            player.vy *= FRICTION;
+
+            // Update position
+            player.x += player.vx;
+            player.y += player.vy;
+
+            // Bounce off walls
+            if (player.x < player.size / 2) {
+                player.x = player.size / 2;
+                player.vx *= -BOUNCE;
+            }
+            if (player.x > CANVAS_WIDTH - player.size / 2) {
+                player.x = CANVAS_WIDTH - player.size / 2;
+                player.vx *= -BOUNCE;
+            }
+            if (player.y < player.size / 2) {
+                player.y = player.size / 2;
+                player.vy *= -BOUNCE;
+            }
+            if (player.y > CANVAS_HEIGHT - player.size / 2) {
+                player.y = CANVAS_HEIGHT - player.size / 2;
+                player.vy *= -BOUNCE;
+            }
+
+            // Update effects
+            player.effects = player.effects.filter(effect => {
+                if (effect.type === 'honk') {
+                    effect.radius += 5;
+                    return effect.radius < effect.maxRadius;
+                }
+                return true;
+            });
+
+            // Track corners visited
+            if (playerStats[player.id]) {
+                const margin = 50;
+                if (player.x < margin && player.y < margin) playerStats[player.id].cornersVisited.add('tl');
+                if (player.x > CANVAS_WIDTH - margin && player.y < margin) playerStats[player.id].cornersVisited.add('tr');
+                if (player.x < margin && player.y > CANVAS_HEIGHT - margin) playerStats[player.id].cornersVisited.add('bl');
+                if (player.x > CANVAS_WIDTH - margin && player.y > CANVAS_HEIGHT - margin) playerStats[player.id].cornersVisited.add('br');
+            }
+        }
+
+        function checkCollisions() {
+            const players = Object.values(gameState.players);
+            
+            for (let i = 0; i < players.length; i++) {
+                for (let j = i + 1; j < players.length; j++) {
+                    const p1 = players[i];
+                    const p2 = players[j];
+                    
+                    const dx = p2.x - p1.x;
+                    const dy = p2.y - p1.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const minDist = (p1.size + p2.size) / 2;
+                    
+                    if (dist < minDist) {
+                        // Collision!
+                        const angle = Math.atan2(dy, dx);
+                        const force = (minDist - dist) * 0.5;
+                        
+                        p1.vx -= Math.cos(angle) * force;
+                        p1.vy -= Math.sin(angle) * force;
+                        p2.vx += Math.cos(angle) * force;
+                        p2.vy += Math.sin(angle) * force;
+                        
+                        // Track bumps
+                        if (playerStats[p1.id]) playerStats[p1.id].bumps++;
+                        if (playerStats[p2.id]) playerStats[p2.id].bumps++;
+                        
+                        playSound(300, 0.05, 'square');
+                    }
+                }
+                
+                // Check item collection
+                const player = players[i];
+                gameState.items.forEach((item, idx) => {
+                    const dx = item.x - player.x;
+                    const dy = item.y - player.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist < player.size / 2 + item.size) {
+                        // Collected!
+                        if (playerStats[player.id]) {
+                            playerStats[player.id].itemsCollected++;
+                        }
+                        collectSound();
+                        
+                        // Broadcast item collection
+                        channel.send({
+                            type: 'broadcast',
+                            event: 'item-collect',
+                            payload: { playerId: player.id, itemIndex: idx }
+                        });
+                        
+                        gameState.items.splice(idx, 1);
+                    }
+                });
+            }
+        }
+
+        function calculateScores() {
+            if (!currentObjective) return;
+            
+            const players = Object.values(gameState.players);
+            const scores = {};
+            
+            players.forEach(player => {
+                let score = 0;
+                
+                switch (currentObjective.scoreType) {
+                    case 'items':
+                        score = playerStats[player.id]?.itemsCollected || 0;
+                        break;
+                    case 'position':
+                        score = CANVAS_HEIGHT - player.y;
+                        break;
+                    case 'distance':
+                        const dx = player.x - CANVAS_WIDTH / 2;
+                        const dy = player.y - CANVAS_HEIGHT / 2;
+                        score = 1000 - Math.sqrt(dx * dx + dy * dy);
+                        break;
+                    case 'corners':
+                        score = playerStats[player.id]?.cornersVisited.size || 0;
+                        break;
+                    case 'velocity':
+                        score = Math.abs(player.vx) + Math.abs(player.vy);
+                        break;
+                    case 'stillness':
+                        score = 100 - (Math.abs(player.vx) + Math.abs(player.vy));
+                        break;
+                    case 'bumps':
+                        score = playerStats[player.id]?.bumps || 0;
+                        break;
+                    case 'isolation':
+                        let minDist = Infinity;
+                        players.forEach(other => {
+                            if (other.id !== player.id) {
+                                const dx = other.x - player.x;
+                                const dy = other.y - player.y;
+                                const dist = Math.sqrt(dx * dx + dy * dy);
+                                minDist = Math.min(minDist, dist);
+                            }
+                        });
+                        score = minDist;
+                        break;
+                }
+                
+                scores[player.id] = score;
+            });
+            
+            return scores;
+        }
+
+        function awardPoints() {
+            // Only host awards points to prevent duplication
+            if (!isHost) return;
+            
+            const scores = calculateScores();
+            if (!scores) return;
+            
+            // Sort by score
+            const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            
+            // Award points
+            if (sorted.length > 0 && gameState.players[sorted[0][0]]) {
+                gameState.players[sorted[0][0]].score += 3;
+            }
+            if (sorted.length > 1 && gameState.players[sorted[1][0]]) {
+                gameState.players[sorted[1][0]].score += 2;
+            }
+            if (sorted.length > 2 && gameState.players[sorted[2][0]]) {
+                gameState.players[sorted[2][0]].score += 1;
+            }
+            
+            // Broadcast score update
+            channel.send({
+                type: 'broadcast',
+                event: 'scores-update',
+                payload: {
+                    scores: Object.fromEntries(
+                        Object.values(gameState.players).map(p => [p.id, p.score])
+                    )
+                }
+            });
+            
+            // Check if anyone reached max score
+            const winner = Object.values(gameState.players).find(p => p.score >= MAX_SCORE);
+            if (winner) {
+                addDebugLog(`🏆 ${winner.name} reached ${MAX_SCORE} points!`);
+                endGame();
+                return true; // Signal to stop generating new objectives
+            }
+            
+            // Reset stats for next objective
+            Object.keys(playerStats).forEach(pid => {
+                playerStats[pid].bumps = 0;
+                playerStats[pid].itemsCollected = 0;
+                playerStats[pid].cornersVisited = new Set();
+            });
+            
+            return false; // Continue game
+        }
+
+        function showLoadingScreen(isWinner) {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const loadingContent = document.getElementById('loadingContent');
+            
+            loadingScreen.className = isWinner ? 'winner' : 'loser';
+            loadingScreen.style.display = 'flex';
+            
+            if (isWinner) {
+                loadingContent.innerHTML = `
+                    <div class="success-icon">✅</div>
+                    <div class="loading-title" style="color: #00ff00;">CONTENT LOADED!</div>
+                    <div class="loading-message">
+                        Congratulations ${myPlayerName}!<br>
+                        You've successfully loaded your content by dominating the Chaos Carnival!
+                    </div>
+                    <div class="loading-subtitle">Your chaos mastery: LEGENDARY</div>
+                    <button onclick="location.reload()" style="background: #00ff00; pointer-events: all;">
+                        🎪 ENTER THE CARNIVAL AGAIN 🎪
+                    </button>
+                `;
+            } else {
+                const errorCodes = ['404', '500', '502', '503', '418'];
+                const errorCode = errorCodes[Math.floor(Math.random() * errorCodes.length)];
+                
+                loadingContent.innerHTML = `
+                    <div class="error-code">${errorCode}</div>
+                    <div class="loading-title" style="color: #ff0000;">LOADING FAILED!</div>
+                    <div class="loading-message">
+                        Sorry ${myPlayerName}, you didn't score enough points!<br>
+                        The content could not be loaded. You were too slow in the carnival.
+                    </div>
+                    <div class="loading-subtitle">Better luck next time... or not.</div>
+                    <button onclick="location.reload()" style="background: #ff0000; pointer-events: all;">
+                        ⚠️ RETRY LOADING ⚠️
+                    </button>
+                `;
+            }
+        }
+
+        function endGame() {
+            gameState.gameActive = false;
+            
+            // Determine the winner
+            const players = Object.values(gameState.players).sort((a, b) => b.score - a.score);
+            const winner = players[0];
+            const myPlayer = gameState.players[myPlayerId];
+            
+            // Single player mode: must reach MAX_SCORE to win, otherwise lose
+            let isWinner;
+            if (players.length === 1) {
+                isWinner = myPlayer.score >= MAX_SCORE;
+                addDebugLog(isWinner ? 
+                    `🏆 Solo victory! Reached ${MAX_SCORE} points!` : 
+                    `💀 Failed solo challenge. Only got ${myPlayer.score}/${MAX_SCORE} points.`
+                );
+            } else {
+                // Multiplayer: top scorer who reached MAX_SCORE wins
+                isWinner = winner && winner.id === myPlayerId && myPlayer.score >= MAX_SCORE;
+            }
+            
+            // Broadcast game end if I'm host
+            if (isHost && winner) {
+                channel.send({
+                    type: 'broadcast',
+                    event: 'game-end',
+                    payload: {
+                        winnerId: isWinner ? winner.id : null,
+                        winnerName: winner.name,
+                        winnerScore: winner.score
+                    }
+                });
+            }
+            
+            // Show appropriate loading screen
+            setTimeout(() => {
+                showLoadingScreen(isWinner);
+            }, 1000);
+            
+            if (winner) {
+                if (isWinner) {
+                    winSound();
+                }
+                addDebugLog(`🏁 Game over! ${players.length === 1 ? 'Solo mode' : `Winner: ${winner.name}`}`);
+            }
+        }
+
+        // ====== RENDERING ======
+        function drawPlayer(player) {
+            ctx.save();
+            
+            // Draw honk effect
+            player.effects.forEach(effect => {
+                if (effect.type === 'honk') {
+                    ctx.strokeStyle = player.color;
+                    ctx.lineWidth = 3;
+                    ctx.globalAlpha = 1 - (effect.radius / effect.maxRadius);
+                    ctx.beginPath();
+                    ctx.arc(player.x, player.y, effect.radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            });
+            
+            ctx.globalAlpha = 1;
+            
+            // Draw balloon body
+            ctx.fillStyle = player.color;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw shine
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(player.x - player.size / 6, player.y - player.size / 6, player.size / 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw eyes
+            const eyeSize = player.size / 8;
+            const eyeOffset = player.size / 4;
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(player.x - eyeOffset, player.y, eyeSize, 0, Math.PI * 2);
+            ctx.arc(player.x + eyeOffset, player.y, eyeSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw string
+            ctx.strokeStyle = player.color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(player.x, player.y + player.size / 2);
+            ctx.lineTo(player.x, player.y + player.size / 2 + 20);
+            ctx.stroke();
+            
+            // Draw name
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px "Courier New"';
+            ctx.textAlign = 'center';
+            ctx.fillText(player.name, player.x, player.y - player.size / 2 - 10);
+            
+            ctx.restore();
+        }
+
+        function drawItems() {
+            gameState.items.forEach(item => {
+                const time = Date.now() * 0.003;
+                ctx.save();
+                ctx.fillStyle = '#ffff00';
+                ctx.shadowColor = '#ffff00';
+                ctx.shadowBlur = 20;
+                ctx.beginPath();
+                ctx.arc(item.x, item.y, item.size + Math.sin(time) * 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+
+        function drawBackground() {
+            // Checkered floor
+            const gridSize = 40;
+            const time = Date.now() * 0.0001;
+            
+            for (let x = 0; x < CANVAS_WIDTH; x += gridSize) {
+                for (let y = 0; y < CANVAS_HEIGHT; y += gridSize) {
+                    const isEven = ((x / gridSize) + (y / gridSize)) % 2 === 0;
+                    const glitch = Math.sin(time + x + y) > 0.95 ? 0.3 : 0;
+                    ctx.fillStyle = isEven ? 
+                        `rgba(40, 40, 40, ${1 - glitch})` : 
+                        `rgba(30, 30, 30, ${1 - glitch})`;
+                    ctx.fillRect(x, y, gridSize, gridSize);
+                }
+            }
+            
+            // Center circle
+            ctx.strokeStyle = '#ff00ff';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.arc(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 100, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function updateScoreboard() {
+            const players = Object.values(gameState.players).sort((a, b) => b.score - a.score);
+            const scoreList = document.getElementById('scoreList');
+            scoreList.innerHTML = '';
+            
+            players.forEach((player, i) => {
+                const div = document.createElement('div');
+                div.className = 'player-score';
+                if (i === 0) div.classList.add('leader');
+                
+                const progress = Math.min(100, (player.score / MAX_SCORE) * 100);
+                
+                div.innerHTML = `
+                    <span style="color: ${player.color}">${player.name}</span>: ${player.score}/${MAX_SCORE}
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${progress}%; background: ${player.color};"></div>
+                    </div>
+                `;
+                scoreList.appendChild(div);
+            });
+        }
+
+        // ====== GAME LOOP ======
+        let lastTime = Date.now();
+        let lastObjectiveCheck = Date.now();
+        let lastBroadcast = Date.now();
+
+        function gameLoop() {
+            const now = Date.now();
+            const dt = now - lastTime;
+            lastTime = now;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            // Draw background
+            drawBackground();
+
+            // Update players
+            Object.values(gameState.players).forEach(updatePlayer);
+
+            // Check collisions
+            checkCollisions();
+
+            // Draw items
+            drawItems();
+
+            // Draw players
+            Object.values(gameState.players).forEach(drawPlayer);
+
+            // Update scoreboard
+            updateScoreboard();
+
+            // Broadcast my position via Supabase
+            if (now - lastBroadcast > 50) { // 20 times per second
+                channel.send({
+                    type: 'broadcast',
+                    event: 'player-update',
+                    payload: {
+                        id: myPlayerId,
+                        x: gameState.players[myPlayerId].x,
+                        y: gameState.players[myPlayerId].y,
+                        vx: gameState.players[myPlayerId].vx,
+                        vy: gameState.players[myPlayerId].vy,
+                        size: gameState.players[myPlayerId].size,
+                        score: gameState.players[myPlayerId].score,
+                        effects: gameState.players[myPlayerId].effects
+                    }
+                });
+                lastBroadcast = now;
+            }
+
+            // Check objective timer
+            if (isHost && currentObjective && gameState.gameActive && now - lastObjectiveCheck > 1000) {
+                const timeLeft = OBJECTIVE_DURATION - (now - objectiveStartTime);
+                
+                if (timeLeft <= 0) {
+                    // Award points for this objective and check for winner
+                    const gameEnded = awardPoints();
+                    
+                    // If no winner yet, continue with next objective or end on time
+                    if (!gameEnded) {
+                        if (gameStartTime && now - gameStartTime >= GAME_DURATION) {
+                            endGame();
+                        } else {
+                            setNewObjective();
+                        }
+                    }
+                }
+                
+                lastObjectiveCheck = now;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        console.log('🎪 Chaos Carnival is LIVE!');
+    </script>
+</body>
+</html>

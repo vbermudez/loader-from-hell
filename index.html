@@ -189,6 +189,59 @@
             font-weight: bold;
             margin-left: 10px;
         }
+
+        .secret-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.95);
+            color: #7e22ce;
+            padding: 15px 30px;
+            border-radius: 20px;
+            border: 2px solid #7e22ce;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            display: none;
+            animation: pulse 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(126, 34, 206, 0.6);
+            z-index: 999;
+        }
+
+        .secret-link {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 25px;
+            border: 3px solid #fff;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            display: none;
+            animation: float 3s ease-in-out infinite, glow 1.5s ease-in-out infinite;
+            box-shadow: 0 0 50px rgba(102, 126, 234, 0.8);
+            z-index: 999;
+            text-align: center;
+        }
+
+        .secret-link:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 0 70px rgba(102, 126, 234, 1);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 50px rgba(102, 126, 234, 0.8); }
+            50% { box-shadow: 0 0 80px rgba(102, 126, 234, 1), 0 0 100px rgba(126, 34, 206, 0.6); }
+        }
     </style>
 </head>
 <body>
@@ -228,6 +281,14 @@
         <iframe id="loader-frame" class="loader-frame"></iframe>
     </div>
 
+    <div id="secret-hint" class="secret-hint">
+        🔮 The chaos is strong... Try the ancient order: A → B → C → D...
+    </div>
+
+    <a id="secret-link" class="secret-link" href="multiplayer-loader.html">
+        🎮✨ SECRET UNLOCKED: MULTIPLAYER CHAOS MODE ✨🎮
+    </a>
+
     <script>
         const loaderSelect = document.getElementById('loader-select');
         const loadBtn = document.getElementById('load-btn');
@@ -235,6 +296,14 @@
         const placeholder = document.getElementById('placeholder');
         const statusBadge = document.getElementById('status-badge');
         const loaderInfo = document.getElementById('loader-info');
+        const secretHint = document.getElementById('secret-hint');
+        const secretLink = document.getElementById('secret-link');
+
+        // Easter egg tracking
+        const visitedLoaders = new Set();
+        const correctSequence = ['blob', 'chaos-game', 'madness', 'terminal'];
+        let sequenceProgress = [];
+        let easterEggUnlocked = false;
 
         const loaderDetails = {
             madness: {
@@ -322,6 +391,44 @@
             }
 
             const details = loaderDetails[selectedLoader];
+            
+            // Easter egg tracking
+            if (!easterEggUnlocked) {
+                visitedLoaders.add(selectedLoader);
+                
+                // Check if all loaders have been visited at least once
+                if (visitedLoaders.size === 4 && secretHint.style.display === 'none') {
+                    secretHint.style.display = 'block';
+                    setTimeout(() => {
+                        secretHint.style.display = 'none';
+                    }, 8000);
+                }
+                
+                // Track sequence
+                if (visitedLoaders.size === 4) {
+                    // Check if this continues the correct sequence
+                    if (selectedLoader === correctSequence[sequenceProgress.length]) {
+                        sequenceProgress.push(selectedLoader);
+                        
+                        // Sequence completed!
+                        if (sequenceProgress.length === 4) {
+                            easterEggUnlocked = true;
+                            secretHint.style.display = 'none';
+                            secretLink.style.display = 'block';
+                        }
+                    } else {
+                        // Wrong order, reset sequence
+                        sequenceProgress = [];
+                        // Show hint again as a reminder
+                        if (!easterEggUnlocked) {
+                            secretHint.style.display = 'block';
+                            setTimeout(() => {
+                                secretHint.style.display = 'none';
+                            }, 3000);
+                        }
+                    }
+                }
+            }
             
             // Update status
             statusBadge.textContent = 'Loading...';
